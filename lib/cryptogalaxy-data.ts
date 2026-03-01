@@ -77,6 +77,7 @@ export type ThreadSample = {
 
 export const cryptoGalaxyXHandle = "cryptogalaxy254"
 export const cryptoGalaxyXUrl = `https://x.com/${cryptoGalaxyXHandle}`
+export const cryptoGalaxyLumaUrl = "https://luma.com/user/cryptogalaxy254"
 export const cryptoGalaxyThreadSamples: ThreadSample[] = [
   {
     id: "x-thread-1",

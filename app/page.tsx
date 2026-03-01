@@ -14,10 +14,10 @@ import { XPostEmbed } from "@/components/cryptogalaxy/x-post-embed"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { cryptoGalaxyThreadSamples, cryptoGalaxyXHandle, cryptoGalaxyXUrl } from "@/lib/cryptogalaxy-data"
+import { cryptoGalaxyLumaUrl, cryptoGalaxyThreadSamples, cryptoGalaxyXHandle, cryptoGalaxyXUrl } from "@/lib/cryptogalaxy-data"
 
 const signalMetrics = [
-  { label: "Active Members", value: "2K", detail: "Across Kenya" },
+  { label: "Active Members", value: "2K+", detail: "Across Kenya" },
   { label: "Campus Workshops", value: "28", detail: "In the last 12 months" },
   { label: "Cities Reached", value: "12", detail: "Community nodes nationwide" },
 ]
@@ -275,9 +275,17 @@ export default function HomePage() {
             <CalendarDays className="h-5 w-5 text-violet-300" />
             Upcoming Events
           </h2>
-          <Button asChild variant="outline" className="border-white/20 bg-transparent text-slate-100 hover:bg-white/10">
-            <Link href="/events">View All Events</Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" className="border-white/20 bg-transparent text-slate-100 hover:bg-white/10">
+              <Link href="/events">View All Events</Link>
+            </Button>
+            <Button asChild className="btn-glow bg-violet-500 text-white hover:bg-violet-400">
+              <Link href={cryptoGalaxyLumaUrl} target="_blank" rel="noopener noreferrer">
+                Event Hub on Luma
+                <ExternalLink className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {upcomingEvents.map((event, idx) => (
@@ -287,8 +295,14 @@ export default function HomePage() {
                 <CardTitle className="text-white">{event.title}</CardTitle>
                 <CardDescription className="text-violet-200">{event.date}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <p className="text-sm text-slate-300">{event.description}</p>
+                <Button asChild variant="outline" className="w-full border-white/20 bg-transparent text-slate-100 hover:bg-white/10">
+                  <Link href={cryptoGalaxyLumaUrl} target="_blank" rel="noopener noreferrer">
+                    View on Luma
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
               </CardContent>
             </Card>
           ))}

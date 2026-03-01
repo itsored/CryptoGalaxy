@@ -1,7 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useMemo, useState, type FormEvent } from "react"
-import { CalendarRange, Filter } from "lucide-react"
+import { CalendarRange, ExternalLink, Filter } from "lucide-react"
 import { ParallaxHero } from "@/components/cryptogalaxy/parallax-hero"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,8 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { getEventSuggestions, submitEventSuggestion } from "@/lib/cryptogalaxy-api"
-import { cryptoGalaxyEvents, type PublicEventSuggestion } from "@/lib/cryptogalaxy-data"
-import { getRegisteredEventIds, saveRegisteredEventIds } from "@/lib/cryptogalaxy-storage"
+import { cryptoGalaxyEvents, cryptoGalaxyLumaUrl, type PublicEventSuggestion } from "@/lib/cryptogalaxy-data"
 
 type EventFilter = "upcoming" | "past"
 
@@ -66,14 +66,11 @@ function formatDateTime(dateIso: string) {
 export default function EventsPage() {
   const { toast } = useToast()
   const [filter, setFilter] = useState<EventFilter>("upcoming")
-  const [registeredEventIds, setRegisteredEventIds] = useState<string[]>([])
   const [suggestions, setSuggestions] = useState<PublicEventSuggestion[]>([])
   const [form, setForm] = useState<SuggestionForm>(DEFAULT_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof SuggestionForm, string>>>({})
 
   useEffect(() => {
-    setRegisteredEventIds(getRegisteredEventIds())
-
     let active = true
 
     getEventSuggestions()
@@ -115,23 +112,6 @@ export default function EventsPage() {
     () => suggestions.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, 3),
     [suggestions],
   )
-
-  function toggleRegistration(eventId: string, eventTitle: string) {
-    const currentlyRegistered = registeredEventIds.includes(eventId)
-    const next = currentlyRegistered
-      ? registeredEventIds.filter((id) => id !== eventId)
-      : [...registeredEventIds, eventId]
-
-    setRegisteredEventIds(next)
-    saveRegisteredEventIds(next)
-
-    toast({
-      title: currentlyRegistered ? "Registration removed" : "You are registered",
-      description: currentlyRegistered
-        ? `You are no longer registered for ${eventTitle}.`
-        : `${eventTitle} has been added to your event list.`,
-    })
-  }
 
   function validateForm(input: SuggestionForm) {
     const nextErrors: Partial<Record<keyof SuggestionForm, string>> = {}
@@ -197,11 +177,19 @@ export default function EventsPage() {
       />
 
       <section className="section-reveal space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="flex items-center gap-2 text-2xl font-semibold text-white">
-            <CalendarRange className="h-5 w-5 text-violet-300" />
-            Events
-          </h2>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="flex items-center gap-2 text-2xl font-semibold text-white">
+              <CalendarRange className="h-5 w-5 text-violet-300" />
+              Events
+            </h2>
+            <Button asChild className="btn-glow bg-violet-500 text-white hover:bg-violet-400">
+              <Link href={cryptoGalaxyLumaUrl} target="_blank" rel="noopener noreferrer">
+                Open Luma Event Hub
+                <ExternalLink className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
           <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-slate-900/70 p-1">
             <Filter className="ml-2 h-4 w-4 text-slate-400" />
             <Button
@@ -222,6 +210,7 @@ export default function EventsPage() {
             </Button>
           </div>
         </div>
+        <p className="text-sm text-slate-300">All live registrations and updated event details are published on Luma.</p>
 
         {filteredEvents.length === 0 ? (
           <Card className="galaxy-card">
@@ -231,7 +220,6 @@ export default function EventsPage() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filteredEvents.map((eventItem, idx) => {
               const upcoming = isUpcoming(eventItem.date)
-              const registered = registeredEventIds.includes(eventItem.id)
 
               return (
                 <Card key={eventItem.id} className={`galaxy-card section-reveal stagger-${(idx % 4) + 1}`}>
@@ -242,15 +230,11 @@ export default function EventsPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm text-slate-300">{eventItem.description}</p>
-                    <Button
-                      onClick={() => toggleRegistration(eventItem.id, eventItem.title)}
-                      className={
-                        registered
-                          ? "w-full border border-violet-300/40 bg-violet-500/20 text-violet-100 hover:bg-violet-500/30"
-                          : "btn-glow w-full bg-violet-500 text-white hover:bg-violet-400"
-                      }
-                    >
-                      {upcoming ? (registered ? "Registered" : "Register") : registered ? "Saved" : "Save Event"}
+                    <Button asChild className="btn-glow w-full bg-violet-500 text-white hover:bg-violet-400">
+                      <Link href={cryptoGalaxyLumaUrl} target="_blank" rel="noopener noreferrer">
+                        {upcoming ? "Register on Luma" : "View Event Hub"}
+                        <ExternalLink className="ml-2 h-4 w-4" />
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>
